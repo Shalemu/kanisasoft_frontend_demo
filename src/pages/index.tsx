@@ -296,10 +296,10 @@ export default function Home() {
               support@kanisasoft.co.tz
             </a>
             <a
-              href="tel:+255712104508"
+              href="tel:+255760900500"
               className="px-6 py-3 rounded-full bg-white/10 border border-white/10 text-white font-bold shadow hover:bg-green-400/20 transition text-lg"
             >
-              +255 712 104 508
+              +255 760 900 500 
             </a>
           </div>
         </div>
