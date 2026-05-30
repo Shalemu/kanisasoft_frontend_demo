@@ -19,7 +19,6 @@ interface EventType {
   location?: string;
   category?: string;
   description?: string;
-  
 }
 
 interface MemberType {
@@ -42,7 +41,7 @@ export default function DashboardTab() {
   const [contributions, setContributions] = useState<any[]>([]);
   const [chartData, setChartData] = useState<{ name: string; amount: number }[]>([]);
   // const [groupsCount, setGroupsCount] = useState<number>(0);
-  
+
 const [groupsCount, setGroupsCount] = useState(0);
 
 async function fetchGroups() {
@@ -160,7 +159,7 @@ const [membersLoading, setMembersLoading] = useState(true);
       setIsLoading(false);
     };
     fetchAll();
-    // eslint-disable-next-line
+
   }, []);
 
   useEffect(() => {
@@ -174,7 +173,7 @@ const [membersLoading, setMembersLoading] = useState(true);
       setAnnouncementIndex((prev) => (prev + 1) % announcements.length);
     }, 6000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line
+
   }, [announcements, showAnnouncements]);
 
   async function fetchMemberInfo() {

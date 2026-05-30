@@ -32,7 +32,7 @@ function isSameMonth(dateStr: string) {
 
 // Converts +2557xxxxxxx to 07xxxxxxx
 function localizeNumber(recipient: string) {
-  let n = recipient.trim();
+  const n = recipient.trim();
   if (n.startsWith('+255')) return '0' + n.slice(4);
   if (n.startsWith('255')) return '0' + n.slice(3);
   return n;

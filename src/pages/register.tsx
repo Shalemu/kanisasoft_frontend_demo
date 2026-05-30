@@ -3,21 +3,95 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
 import Swal from 'sweetalert2';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
+type RegisterForm = {
+  fullName: string;
+  gender: string;
+  birthDate: string;
+  birthRegion: string;
+  birthDistrict: string;
+  birthWard: string;
+  birthStreet: string;
+  birthPlace: string;
+  residentialWard: string;
+  residentialStreet: string;
+  residence: string;
+  maritalStatus: string;
+  marriageType: string;
+  spouseName: string;
+  childrenCount: string;
+  zone: string;
+  phone: string;
+  whatsappNumber: string;
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+  hasDisability: string;
+  disabilityDescription: string;
+  conversionYear: string;
+  conversionMonth: string;
+  conversionDay: string;
+  churchOfConversion: string;
+  baptismYear: string;
+  baptismMonth: string;
+  baptismDay: string;
+  baptismPlace: string;
+  baptizerName: string;
+  baptizerTitle: string;
+  previousChurchStatus: string;
+  tanguLini: string;
+  kanisaUlipotoka: string;
+  churchService: string;
+  participatesCommunion: string;
+  serviceDuration: string;
+  educationLevel: string;
+  profession: string;
+  occupation: string;
+  workPlace: string;
+  workContact: string;
+  livesAlone: string;
+  livesWith: string;
+  familyRole: string;
+  liveWithWho: string;
+  nextOfKin: string;
+  nextOfKinPhone: string;
+};
+
+type FieldProps = {
+  label: string;
+  name: keyof RegisterForm;
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement>;
+  type?: React.HTMLInputTypeAttribute;
+};
+
+type SelectProps = Omit<FieldProps, 'type'> & {
+  options: string[];
+};
+
+type ApiErrorResponse = {
+  message?: string;
+  errors?: {
+    email?: string[];
+    phone?: string[];
+  };
+};
+
+const isApiErrorResponse = (error: unknown): error is ApiErrorResponse =>
+  typeof error === 'object' && error !== null;
+
 export default function RegisterPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const from = searchParams.get('from') || '/dashboard';
 
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const tabTitles = ['Taarifa Binafsi', 'Taarifa za Imani', 'Elimu na Kazi', 'Familia'];
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<RegisterForm>({
     // Personal Info
     fullName: '', gender: '', birthDate: '',
     birthRegion: '', birthDistrict: '', birthWard: '', birthStreet: '',
@@ -214,13 +288,13 @@ export default function RegisterPage() {
       } else {
         Swal.fire({ title: 'Tatizo', text: `${response.message || 'Kuna Tatizo la kiufundi.'}`, icon: 'error', confirmButtonText: 'Sawa', confirmButtonColor: '#f0ce32' });
       }
-    } catch (error: any) {
-      if (error?.errors?.email?.[0]) {
+    } catch (error: unknown) {
+      if (isApiErrorResponse(error) && error.errors?.email?.[0]) {
         Swal.fire({ title: 'Barua pepe tayari imesajiliwa', text: error.errors.email[0], icon: 'error', confirmButtonText: 'Sawa' });
-      } else if (error?.errors?.phone?.[0]) {
+      } else if (isApiErrorResponse(error) && error.errors?.phone?.[0]) {
         Swal.fire({ title: 'Namba ya simu tayari imesajiliwa', text: error.errors.phone[0], icon: 'error', confirmButtonText: 'Sawa' });
       } else {
-        Swal.fire({ title: 'Tatizo', text: error?.message || 'Tatizo limetokea. Jaribu tena.', icon: 'error', confirmButtonText: 'Sawa' });
+        Swal.fire({ title: 'Tatizo', text: isApiErrorResponse(error) && error.message ? error.message : 'Tatizo limetokea. Jaribu tena.', icon: 'error', confirmButtonText: 'Sawa' });
       }
     } finally {
       setLoading(false);
@@ -427,7 +501,7 @@ export default function RegisterPage() {
           <div className="mt-6 flex flex-col items-center gap-3">
             <p className="text-center text-sm">
               Tayari una akaunti?{' '}
-              <a href="/login" className="text-[#f0ce32] underline font-medium">Ingia hapa</a>
+              <Link href="/login" className="text-[#f0ce32] underline font-medium">Ingia hapa</Link>
             </p>
             <Link href="/" className="text-sm font-medium text-[#f0ce32] hover:underline">
               ← Rudi Nyumbani
@@ -441,7 +515,7 @@ export default function RegisterPage() {
 
 // ── Reusable Components ───────────────────────────────────────
 
-function Field({ label, name, value, onChange, type = 'text' }: any) {
+function Field({ label, name, value, onChange, type = 'text' }: FieldProps) {
   return (
     <div>
       <label htmlFor={name} className="block mb-1 text-sm font-medium text-white">{label}</label>
@@ -452,7 +526,7 @@ function Field({ label, name, value, onChange, type = 'text' }: any) {
   );
 }
 
-function PasswordField({ label, name, value, onChange }: any) {
+function PasswordField({ label, name, value, onChange }: Omit<FieldProps, 'type'>) {
   const [show, setShow] = useState(false);
   return (
     <div>
@@ -470,7 +544,7 @@ function PasswordField({ label, name, value, onChange }: any) {
   );
 }
 
-function Select({ label, name, value, onChange, options }: any) {
+function Select({ label, name, value, onChange, options }: SelectProps) {
   return (
     <div>
       <label htmlFor={name} className="block mb-1 text-sm font-medium text-white">{label}</label>

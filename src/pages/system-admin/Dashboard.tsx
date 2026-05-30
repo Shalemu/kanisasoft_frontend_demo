@@ -123,7 +123,7 @@ export default function DashboardTab() {
       setIsLoading(false);
     };
     fetchAll();
-    // eslint-disable-next-line
+
   }, []);
 
   useEffect(() => {
@@ -137,7 +137,7 @@ export default function DashboardTab() {
       setAnnouncementIndex((prev) => (prev + 1) % announcements.length);
     }, 6000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line
+
   }, [announcements, showAnnouncements]);
 
   async function fetchMemberInfo() {
