@@ -7,12 +7,14 @@ import { Role } from '@/types/Role';
 
 interface Leader {
   id: number;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  role?: string | null;
   user_id: number | null;
 }
+
+const normalizeText = (value?: string | null) => value?.toLowerCase().trim() ?? '';
 
 export default function OrodhaYaViongozi() {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -44,9 +46,13 @@ export default function OrodhaYaViongozi() {
 
       const priorityOrder = ['mchungaji', 'katibu', 'mtunza hazina', 'admin'];
       const sorted = [...activeOnly].sort((a, b) => {
-        const aIndex = priorityOrder.indexOf(a.role.toLowerCase());
-        const bIndex = priorityOrder.indexOf(b.role.toLowerCase());
-        if (aIndex === -1 && bIndex === -1) return a.role.localeCompare(b.role);
+        const aRole = normalizeText(a.role);
+        const bRole = normalizeText(b.role);
+        const aIndex = priorityOrder.indexOf(aRole);
+        const bIndex = priorityOrder.indexOf(bRole);
+        if (aIndex === -1 && bIndex === -1) {
+          return aRole.localeCompare(bRole) || normalizeText(a.name).localeCompare(normalizeText(b.name));
+        }
         if (aIndex === -1) return 1;
         if (bIndex === -1) return -1;
         return aIndex - bIndex;
@@ -56,13 +62,17 @@ export default function OrodhaYaViongozi() {
     }
   };
 
+  const searchTerm = normalizeText(search);
   const filteredLeaders = leaders
-    .filter((l) =>
-      (l.name.toLowerCase().includes(search.toLowerCase()) ||
-        l.email?.toLowerCase().includes(search.toLowerCase()) ||
-        l.phone?.includes(search)) &&
-      (filterRole === 'Yote' || l.role === filterRole)
-    )
+    .filter((l) => {
+      const role = l.role ?? '';
+      return (
+        (normalizeText(l.name).includes(searchTerm) ||
+          normalizeText(l.email).includes(searchTerm) ||
+          (l.phone ?? '').includes(search)) &&
+        (filterRole === 'Yote' || role === filterRole)
+      );
+    })
     .sort((a, b) => (a.user_id === null && b.user_id !== null ? -1 : 1));
 
   return (
@@ -121,23 +131,23 @@ export default function OrodhaYaViongozi() {
                   <td className="px-4 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <img
-                        src={`https://api.dicebear.com/6.x/fun-emoji/svg?seed=${l.name}`}
+                        src={`https://api.dicebear.com/6.x/fun-emoji/svg?seed=${encodeURIComponent(l.name || `leader-${l.id}`)}`}
                         alt="avatar"
                         className="w-10 h-10 rounded-full"
                       />
                       <div>
-                        <div className="font-medium">{l.name}</div>
-                        <div className="text-xs text-gray-500">{l.email}</div>
+                        <div className="font-medium">{l.name || '-'}</div>
+                        <div className="text-xs text-gray-500">{l.email || '-'}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">{l.phone}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{l.phone || '-'}</td>
                   <td
                     className={`px-4 py-3 whitespace-nowrap font-semibold ${
                       l.user_id ? 'text-green-600' : 'text-red-600'
                     }`}
                   >
-                    {l.role}
+                    {l.role || 'Hakuna nafasi'}
                   </td>
                 </tr>
               ))

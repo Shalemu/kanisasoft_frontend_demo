@@ -4,7 +4,7 @@ export interface ApiOptions extends RequestInit {
 }
 
 export async function apiFetch(endpoint: string, options: ApiOptions = {}) {
-  const token = localStorage.getItem('token');
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   if (!baseUrl) throw new Error('API base URL is not defined!');
@@ -43,6 +43,20 @@ export async function apiFetch(endpoint: string, options: ApiOptions = {}) {
 
   const isJson = response.headers.get('content-type')?.includes('application/json');
   const data = isJson ? await response.json() : {};
+
+  if (response.status === 401) {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('user_id');
+
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+
+    throw new Error('Session expired. Please log in again.');
+  }
 
   if (!response.ok) {
     throw new Error(data?.message || `Request failed with status ${response.status}`);
